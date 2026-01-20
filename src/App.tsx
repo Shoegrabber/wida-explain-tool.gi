@@ -512,158 +512,158 @@ const App: React.FC = () => {
               );
             })}
           </div>
-        </div>
 
-      <div className="resize-divider" onMouseDown={() => setIsResizing(true)}>
-        <div className="drag-handle"></div>
-      </div>
 
-      <div className="bank-area" style={{ height: bankHeight, flex: 'none' }}>
-        <div className="bank-header">
-          <h2>Sentence Bank</h2>
-          <button className="secondary" onClick={addBankSentence}><Plus size={16} /> Add Sentence</button>
-        </div>
+          <div className="resize-divider" onMouseDown={() => setIsResizing(true)}>
+            <div className="drag-handle"></div>
+          </div>
 
-        <div
-          className="bank-sections"
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={(e) => {
-            e.preventDefault();
-            if (draggingEntity && draggingEntity.source === 'MENTOR') {
-              removeMentorSentence(draggingEntity.id, true);
-            }
-          }}
-        >
-          {(['STARTERS', 'MY_SENTENCES', 'MENTOR_SENTENCES', 'TRASH'] as BankSection[]).map(section => {
-            const items = bank.filter(b => b.section === section);
-            if (items.length === 0 && section !== 'STARTERS') return null;
+          <div className="bank-area" style={{ height: bankHeight, flex: 'none' }}>
+            <div className="bank-header">
+              <h2>Sentence Bank</h2>
+              <button className="secondary" onClick={addBankSentence}><Plus size={16} /> Add Sentence</button>
+            </div>
 
-            const sectionTitles: Record<BankSection, string> = {
-              STARTERS: "Starters",
-              MY_SENTENCES: "My Sentences",
-              MENTOR_SENTENCES: "Mentor Sentences",
-              TRASH: "Trash (Recoverable)"
-            };
+            <div
+              className="bank-sections"
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                if (draggingEntity && draggingEntity.source === 'MENTOR') {
+                  removeMentorSentence(draggingEntity.id, true);
+                }
+              }}
+            >
+              {(['STARTERS', 'MY_SENTENCES', 'MENTOR_SENTENCES', 'TRASH'] as BankSection[]).map(section => {
+                const items = bank.filter(b => b.section === section);
+                if (items.length === 0 && section !== 'STARTERS') return null;
 
-            return (
-              <div key={section} className="bank-section">
-                <h3>{sectionTitles[section]}</h3>
-                <div className="bank-grid">
-                  {items.map(s => (
-                    <div
-                      key={s.id}
-                      draggable={editingBankId !== s.id}
-                      className={`sentence-item bank-card ${getFunctionClass(s.function)} ${editingBankId === s.id ? 'editing' : ''}`}
-                      onClick={() => section === 'TRASH' ? recoverFromTrash(s.id) : null}
-                      onDoubleClick={() => setEditingBankId(s.id)}
-                      onDragStart={(e) => {
-                        if (editingBankId !== s.id) {
-                          setDraggingEntity({ id: s.id, source: 'BANK' });
-                          e.dataTransfer.setData("text/plain", s.id);
-                        } else {
-                          e.preventDefault();
-                        }
-                      }}
-                      onDragEnd={() => setDraggingEntity(null)}
-                    >
-                      {editingBankId === s.id ? (
-                        <span
-                          contentEditable
-                          suppressContentEditableWarning
-                          autoFocus
-                          className="bank-edit-inline"
-                          onBlur={(e) => {
-                            updateBankSentence(s.id, e.currentTarget.textContent || "");
-                            setEditingBankId(null);
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
+                const sectionTitles: Record<BankSection, string> = {
+                  STARTERS: "Starters",
+                  MY_SENTENCES: "My Sentences",
+                  MENTOR_SENTENCES: "Mentor Sentences",
+                  TRASH: "Trash (Recoverable)"
+                };
+
+                return (
+                  <div key={section} className="bank-section">
+                    <h3>{sectionTitles[section]}</h3>
+                    <div className="bank-grid">
+                      {items.map(s => (
+                        <div
+                          key={s.id}
+                          draggable={editingBankId !== s.id}
+                          className={`sentence-item bank-card ${getFunctionClass(s.function)} ${editingBankId === s.id ? 'editing' : ''}`}
+                          onClick={() => section === 'TRASH' ? recoverFromTrash(s.id) : null}
+                          onDoubleClick={() => setEditingBankId(s.id)}
+                          onDragStart={(e) => {
+                            if (editingBankId !== s.id) {
+                              setDraggingEntity({ id: s.id, source: 'BANK' });
+                              e.dataTransfer.setData("text/plain", s.id);
+                            } else {
                               e.preventDefault();
-                              updateBankSentence(s.id, e.currentTarget.textContent || "");
-                              setEditingBankId(null);
-                            } else if (e.key === 'Escape') {
-                              updateBankSentence(s.id, preEditBankText);
-                              setEditingBankId(null);
                             }
                           }}
-                          ref={(el) => {
-                            if (el && editingBankId === s.id) {
-                              setPreEditBankText(s.currentText);
-                              setTimeout(() => el.focus(), 0);
-                            }
-                          }}
+                          onDragEnd={() => setDraggingEntity(null)}
                         >
-                          {s.currentText}
-                        </span>
-                      ) : (
-                        <div>{s.currentText}</div>
-                      )}
+                          {editingBankId === s.id ? (
+                            <span
+                              contentEditable
+                              suppressContentEditableWarning
+                              autoFocus
+                              className="bank-edit-inline"
+                              onBlur={(e) => {
+                                updateBankSentence(s.id, e.currentTarget.textContent || "");
+                                setEditingBankId(null);
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  updateBankSentence(s.id, e.currentTarget.textContent || "");
+                                  setEditingBankId(null);
+                                } else if (e.key === 'Escape') {
+                                  updateBankSentence(s.id, preEditBankText);
+                                  setEditingBankId(null);
+                                }
+                              }}
+                              ref={(el) => {
+                                if (el && editingBankId === s.id) {
+                                  setPreEditBankText(s.currentText);
+                                  setTimeout(() => el.focus(), 0);
+                                }
+                              }}
+                            >
+                              {s.currentText}
+                            </span>
+                          ) : (
+                            <div>{s.currentText}</div>
+                          )}
 
-                      {section !== 'TRASH' ? (
-                        <button
-                          className="delete-btn"
-                          style={{ position: 'absolute', top: 5, right: 5, padding: 2, background: 'transparent' }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            moveToTrash(s.id);
-                          }}
-                        >
-                          <X size={14} />
-                        </button>
-                      ) : (
-                        <button
-                          className="delete-btn"
-                          style={{ position: 'absolute', top: 5, right: 5, padding: 2, background: 'transparent' }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            deletePermanently(s.id);
-                          }}
-                        >
-                          <X size={14} style={{ color: 'red' }} />
-                        </button>
-                      )}
+                          {section !== 'TRASH' ? (
+                            <button
+                              className="delete-btn"
+                              style={{ position: 'absolute', top: 5, right: 5, padding: 2, background: 'transparent' }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                moveToTrash(s.id);
+                              }}
+                            >
+                              <X size={14} />
+                            </button>
+                          ) : (
+                            <button
+                              className="delete-btn"
+                              style={{ position: 'absolute', top: 5, right: 5, padding: 2, background: 'transparent' }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deletePermanently(s.id);
+                              }}
+                            >
+                              <X size={14} style={{ color: 'red' }} />
+                            </button>
+                          )}
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className="finish-view">
+          <div className="controls">
+            <button className="secondary" onClick={() => setView('EDIT')}>Back to Edit</button>
+            <button className="secondary" onClick={() => setShowColors(!showColors)}>
+              {showColors ? "Hide Colors" : "Show Colors"}
+            </button>
+            <button className="secondary" onClick={copyToClipboard}><Clipboard size={20} /> Copy</button>
+            <button className="secondary" onClick={downloadTxt}><Download size={20} /> Download .txt</button>
+            <button className="secondary" style={{ color: 'red' }} onClick={startFresh}><RefreshCw size={20} /> Start Fresh</button>
+          </div>
+
+          <div className={`finish-text ${showColors ? 'showing-colors' : ''}`}>
+            <h2>{MENTOR_CONTENT.title}</h2>
+            {MENTOR_CONTENT.paragraphs.map(p => (
+              <p key={p.id}>
+                {p.sentenceIds.map(id => {
+                  const s = sentences[id];
+                  const func = (s as any).currentFunction || s.function;
+                  return (
+                    <span key={id} className={showColors ? getFunctionClass(func) : ''} style={{ padding: showColors ? '2px 4px' : '0', borderRadius: '4px' }}>
+                      {s.currentText}{' '}
+                    </span>
+                  );
+                })}
+              </p>
+            ))}
+          </div>
         </div>
-      </div>
-    </>
-  ) : (
-    <div className="finish-view">
-      <div className="controls">
-        <button className="secondary" onClick={() => setView('EDIT')}>Back to Edit</button>
-        <button className="secondary" onClick={() => setShowColors(!showColors)}>
-          {showColors ? "Hide Colors" : "Show Colors"}
-        </button>
-        <button className="secondary" onClick={copyToClipboard}><Clipboard size={20} /> Copy</button>
-        <button className="secondary" onClick={downloadTxt}><Download size={20} /> Download .txt</button>
-        <button className="secondary" style={{ color: 'red' }} onClick={startFresh}><RefreshCw size={20} /> Start Fresh</button>
-      </div>
+      )
+      }
 
-      <div className={`finish-text ${showColors ? 'showing-colors' : ''}`}>
-        <h2>{MENTOR_CONTENT.title}</h2>
-        {MENTOR_CONTENT.paragraphs.map(p => (
-          <p key={p.id}>
-            {p.sentenceIds.map(id => {
-              const s = sentences[id];
-              const func = (s as any).currentFunction || s.function;
-              return (
-                <span key={id} className={showColors ? getFunctionClass(func) : ''} style={{ padding: showColors ? '2px 4px' : '0', borderRadius: '4px' }}>
-                  {s.currentText}{' '}
-                </span>
-              );
-            })}
-          </p>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-{/* Modal removed as Trash is direct move */ }
+      {/* Modal removed as Trash is direct move */}
     </div >
   );
 };
