@@ -147,6 +147,13 @@ export const MENTOR_CONTENT: MentorData = {
             function: "CONCLUSION",
             hotspots: [{ text: "little by little each day" }]
         }
+    },
+    functionalLabels: {
+        INTRO: "Introduction",
+        SEQ: "Step-by-Step Order",
+        CAUSE_EFFECT: "Cause and Effect",
+        EXAMPLE_DETAIL: "Description & Details",
+        CONCLUSION: "Conclusion"
     }
 };
 

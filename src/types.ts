@@ -21,6 +21,7 @@ export interface MentorData {
     title: string;
     paragraphs: Paragraph[];
     sentences: Record<string, Sentence>;
+    functionalLabels: Record<SentenceFunction, string>;
 }
 
 export type BankSection = 'STARTERS' | 'MY_SENTENCES' | 'MENTOR_SENTENCES' | 'TRASH';

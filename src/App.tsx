@@ -424,18 +424,34 @@ const App: React.FC = () => {
     <div className={`container ${mode === 'DISCOURSE' ? 'mode-discourse' : ''}`} style={{ paddingBottom: bankHeight + 20 }}>
       <h1>{MENTOR_CONTENT.title}</h1>
 
+      {view === 'EDIT' && (
+        <div className="legend-container">
+          <span style={{ fontWeight: 'bold', marginRight: '0.5rem' }}>Language Functions:</span>
+          {Object.entries(MENTOR_CONTENT.functionalLabels).map(([key, label]) => {
+            const func = key as SentenceFunction;
+            return (
+              <div key={key} className="legend-item">
+                <span className={`legend-swatch ${getFunctionClass(func)}`}></span>
+                <span>{label}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       {view === 'EDIT' ? (
         <>
           <div className="controls">
-            <button className={`secondary ${mode === 'SENTENCE' ? 'active' : ''}`} onClick={() => setMode('SENTENCE')}>
+            <button className={`btn-mode ${mode === 'SENTENCE' ? 'active' : ''}`} onClick={() => setMode('SENTENCE')}>
               <BookOpen size={20} /> Sentence Mode
             </button>
-            <button className={`secondary ${mode === 'PHRASE' ? 'active' : ''}`} onClick={() => setMode('PHRASE')}>
+            <button className={`btn-mode ${mode === 'PHRASE' ? 'active' : ''}`} onClick={() => setMode('PHRASE')}>
               <Plus size={20} /> Phrase Mode
             </button>
-            <button className={`secondary ${mode === 'DISCOURSE' ? 'active' : ''}`} onClick={() => setMode('DISCOURSE')}>
+            <button className={`btn-mode ${mode === 'DISCOURSE' ? 'active' : ''}`} onClick={() => setMode('DISCOURSE')}>
               <Layers size={20} /> Discourse Mode
             </button>
+            <div style={{ width: 1, background: '#e2e8f0', margin: '0 8px' }}></div>
             <button className="secondary" onClick={readSentence} disabled={!selectedSentenceId}>
               <Play size={20} /> Read Sentence
             </button>
