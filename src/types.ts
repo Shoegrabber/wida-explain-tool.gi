@@ -31,7 +31,7 @@ export interface BankSentence extends Sentence {
 
 export interface AppState {
     hasStarted: boolean; // For landing or reset state
-    mode: 'SENTENCE' | 'PHRASE';
+    mode: 'SENTENCE' | 'PHRASE' | 'DISCOURSE';
     selectedSentenceId: string | null;
     sentences: Record<string, Sentence>;
     bank: BankSentence[];

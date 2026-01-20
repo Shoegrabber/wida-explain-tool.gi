@@ -1,5 +1,7 @@
 # WIDA Explain Tool (Proof of Concept)
 
+**[Live Demo](https://Shoegrabber.github.io/wida-explain-tool.gi/)**
+
 This is a prototype focused on supporting Grade 4 Multilingual Learners (MLLs) in developing scientific "Explain" writing skills. The tool uses a tactile, "Paragraph Canvas" approach to help students understand language functions and document structure through composition and manipulation.
 
 ## Target Audience
