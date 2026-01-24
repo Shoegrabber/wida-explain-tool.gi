@@ -222,11 +222,14 @@ const App: React.FC = () => {
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
+    document.body.classList.add('dragging'); // Enable drop zone highlighting
   };
 
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
-    if (!over) return;
+
+    // Error boundary: prevent crash if over or active are null
+    if (!over || !active) return;
 
     const activeId = active.id as string;
     const overId = over.id as string;
@@ -294,7 +297,10 @@ const App: React.FC = () => {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveId(null);
-    if (!over) return;
+    document.body.classList.remove('dragging'); // Disable drop zone highlighting
+
+    // Error boundary: prevent crash if over or active are null
+    if (!over || !active) return;
 
     const activeId = active.id as string;
     const overId = over.id as string;
@@ -378,27 +384,37 @@ const App: React.FC = () => {
 
     if (mode === 'PHRASE') {
       return (
-        <span key={id} className={`phrase-chip-group ${isSelected ? 'selected' : ''}`} onClick={() => setSelectedSentenceId(id)}>
-          {s.chunks.map(chunk => (
-            <span
-              key={chunk.id}
-              className={`functional-chip chip-${chunk.functionalCategory} ${editingChunkId === chunk.id ? 'editing' : ''}`}
-              onClick={(e) => { e.stopPropagation(); setEditingChunkId(chunk.id); }}
-            >
-              {editingChunkId === chunk.id ? (
-                <input
-                  autoFocus
-                  className="functional-chip-text"
-                  defaultValue={chunk.text.trim()}
-                  onBlur={(e) => { updateChunkText(id, chunk.id, e.target.value); setEditingChunkId(null); }}
-                  onKeyDown={(e) => { if (e.key === 'Enter') { updateChunkText(id, chunk.id, (e.target as HTMLInputElement).value); setEditingChunkId(null); } }}
-                />
-              ) : (
-                <span className="functional-chip-text">{chunk.text}</span>
-              )}
-            </span>
-          ))}
-        </span>
+        <DraggableSentence
+          key={id}
+          id={id}
+          className={`phrase-chip-group ${isSelected ? 'selected' : ''}`}
+          disabled={false}
+        >
+          <span className="phrase-content" onClick={() => setSelectedSentenceId(id)}>
+            {s.chunks.map(chunk => (
+              <span
+                key={chunk.id}
+                className={`functional-chip chip-${chunk.functionalCategory} ${editingChunkId === chunk.id ? 'editing' : ''}`}
+                onClick={(e) => { e.stopPropagation(); setEditingChunkId(chunk.id); }}
+              >
+                {editingChunkId === chunk.id ? (
+                  <input
+                    autoFocus
+                    className="functional-chip-text"
+                    defaultValue={chunk.text.trim()}
+                    onBlur={(e) => { updateChunkText(id, chunk.id, e.target.value); setEditingChunkId(null); }}
+                    onKeyDown={(e) => { if (e.key === 'Enter') { updateChunkText(id, chunk.id, (e.target as HTMLInputElement).value); setEditingChunkId(null); } }}
+                  />
+                ) : (
+                  <span className="functional-chip-text">{chunk.text}</span>
+                )}
+              </span>
+            ))}
+            <button className="workspace-delete-btn" onClick={(e) => { e.stopPropagation(); handleRemoveSentence(id); }}>
+              <X size={14} />
+            </button>
+          </span>
+        </DraggableSentence>
       );
     }
 
@@ -426,7 +442,10 @@ const App: React.FC = () => {
     const bankItem = bank.find(s => s.id === activeId);
     if (bankItem) {
       return (
-        <div className={`sentence-item bank-card ${getFunctionClass(bankItem.function)} dragging-overlay`}>
+        <div
+          className={`sentence-item bank-card ${getFunctionClass(bankItem.function)} dragging-overlay`}
+          style={{ margin: 0, padding: '12px' }}
+        >
           {bankItem.currentText}
         </div>
       );
@@ -436,7 +455,10 @@ const App: React.FC = () => {
     const sentence = sentences[activeId];
     if (sentence) {
       return (
-        <div className={`sentence-card ${getFunctionClass((sentence as any).currentFunction || sentence.function)} dragging-overlay`}>
+        <div
+          className={`sentence-card ${getFunctionClass((sentence as any).currentFunction || sentence.function)} dragging-overlay`}
+          style={{ margin: 0, padding: '6px 12px' }}
+        >
           {sentence.currentText}
         </div>
       );
@@ -446,7 +468,7 @@ const App: React.FC = () => {
     const paragraph = paragraphs.find(p => p.id === activeId);
     if (paragraph) {
       return (
-        <div className="discourse-chunk dragging-overlay" style={{ background: 'white', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)', boxShadow: '0 8px 30px rgba(0,0,0,0.12)' }}>
+        <div className="discourse-chunk dragging-overlay" style={{ margin: 0, background: 'white', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)', boxShadow: '0 8px 30px rgba(0,0,0,0.12)' }}>
           <div data-label="Paragraph">
             <p className="paragraph">
               {paragraph.sentenceIds.map((sid: string) => sentences[sid]?.currentText).join(' ')}
@@ -577,9 +599,12 @@ const App: React.FC = () => {
                   );
 
                   return isDiscourse ? (
-                    <DraggableSentence key={p.id} id={p.id} className="discourse-chunk">
-                      <div data-label={`Paragraph ${pIdx + 1}`}><p className="paragraph">{paragraphContent}</p></div>
-                    </DraggableSentence>
+                    <div key={p.id} className="discourse-chunk-wrapper">
+                      <div className="discourse-label">Paragraph {pIdx + 1}</div>
+                      <div className="discourse-highlight">
+                        <p className="paragraph">{paragraphContent}</p>
+                      </div>
+                    </div>
                   ) : (
                     <div key={p.id} className="composition-paragraph-wrapper">
                       <div className="paragraph-label">Paragraph {pIdx + 1}</div>
@@ -624,7 +649,10 @@ const App: React.FC = () => {
         </label>
       </div>
       <DragOverlay
-        dropAnimation={null}
+        dropAnimation={{
+          duration: 200,
+          easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+        }}
         style={{
           position: 'fixed',
           zIndex: 9999,

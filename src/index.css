@@ -258,6 +258,60 @@ h1 {
   position: relative;
 }
 
+/* Paragraph wrappers need min-height to prevent collapse */
+.composition-paragraph-wrapper,
+.discourse-chunk-wrapper {
+  min-height: 80px;
+  position: relative;
+}
+
+/* Empty paragraph indicator - more specific selectors */
+.composition-paragraph-wrapper .paragraph:empty,
+.discourse-highlight .paragraph:empty,
+.paragraph:not(:has(> *)) {
+  min-height: 80px;
+  border: 1px dashed #ccc;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: rgba(203, 213, 225, 0.05);
+}
+
+.composition-paragraph-wrapper .paragraph:empty::before,
+.discourse-highlight .paragraph:empty::before,
+.paragraph:not(:has(> *))::before {
+  content: 'Drop sentences here';
+  color: #94a3b8;
+  font-size: 0.9rem;
+  font-style: italic;
+  pointer-events: none;
+}
+
+/* Drop zone highlighting during drag */
+body.dragging .paragraph:empty,
+body.dragging .paragraph:not(:has(> *)) {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: var(--accent);
+  border-style: solid;
+  border-width: 2px;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  animation: dropZonePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes dropZonePulse {
+
+  0%,
+  100% {
+    background: rgba(59, 130, 246, 0.1);
+  }
+
+  50% {
+    background: rgba(59, 130, 246, 0.15);
+  }
+}
+
 /* Shared Writing System Styles */
 .sentence-item {
   display: inline;
@@ -573,9 +627,15 @@ h1 {
 
 /* Drag Overlay Styles */
 .dragging-overlay {
+  /* Critical resets to prevent offset */
+  margin: 0 !important;
+  padding: 6px 12px !important;
+  position: fixed !important;
+  pointer-events: none !important;
+
+  /* Visual styles */
   z-index: 9999 !important;
   opacity: 0.9;
-  pointer-events: none;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   cursor: grabbing;
   width: fit-content !important;
@@ -898,49 +958,83 @@ button.secondary:hover {
 }
 
 /* Discourse Mode Styles */
-.discourse-chunk {
-  border: 2px dashed #94a3b8;
-  padding: 1.5rem;
+/* Discourse Mode - Visual Highlight Wrapper */
+.discourse-chunk-wrapper {
+  background: rgba(59, 130, 246, 0.05);
+  border-left: 4px solid var(--accent);
+  padding: 1rem;
   margin-bottom: 1.5rem;
-  margin-top: 1.5rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  pointer-events: none;
+  /* Don't interfere with drag collision detection */
+}
+
+.discourse-chunk-wrapper>* {
+  pointer-events: auto;
+  /* Re-enable for children */
+}
+
+.discourse-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.discourse-highlight {
+  background: white;
+  padding: 0.75rem;
+  border-radius: 4px;
+  min-height: 50px;
+}
+
+/* Legacy discourse-chunk styles (for drag overlay) */
+.discourse-chunk {
+  background: rgba(59, 130, 246, 0.08);
+  border-left: 4px solid var(--accent);
+  padding: 1rem;
+  margin-bottom: 1rem;
   border-radius: 8px;
   position: relative;
   transition: all 0.2s ease;
-  background: #f0f9ff;
 }
 
 .discourse-chunk::before {
   content: attr(data-label);
   position: absolute;
-  top: -12px;
-  left: 10px;
-  background: #e0f2fe;
+  top: -0.5rem;
+  left: 1rem;
+  background: var(--accent);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 600;
   padding: 2px 8px;
-  font-size: 0.8rem;
-  font-weight: bold;
-  color: #0369a1;
   border-radius: 4px;
-  border: 1px solid #bae6fd;
-  z-index: 2;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.mode-discourse .discourse-chunk {
-  cursor: grab;
+.mode-discourse .discourse-chunk-wrapper:hover {
+  background: rgba(59, 130, 246, 0.08);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
 }
 
 .mode-discourse .discourse-chunk:hover {
-  border-color: var(--accent);
-  background: #0ea5e910;
+  background: rgba(59, 130, 246, 0.12);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
 }
 
 .mode-discourse .discourse-chunk.dragging {
   opacity: 0.5;
-  background: #f8fafc;
-  cursor: grabbing;
+  transform: scale(0.98);
 }
 
 .mode-discourse .discourse-chunk.drag-target {
-  border-color: var(--accent);
+  background: rgba(59, 130, 246, 0.15);
+  border-left-color: var(--accent-hover);
   box-shadow: 0 0 0 2px var(--accent-light, #bfdbfe);
 }
 
@@ -973,9 +1067,19 @@ button.secondary:hover {
   flex-wrap: wrap;
   align-items: center;
   padding: 8px;
-  margin: 4px;
+  gap: 6px;
+  border-radius: 8px;
+  transition: all 0.2s;
+  position: relative;
   background: rgba(0, 0, 0, 0.02);
-  border-radius: 12px;
+}
+
+.phrase-content {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
 }
 
 .functional-chip:hover {
