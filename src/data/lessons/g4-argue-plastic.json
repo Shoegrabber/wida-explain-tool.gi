@@ -1,0 +1,227 @@
+{
+  "id": "g4-argue-plastic",
+  "title": "Grade 4 Architecture: Reducing Plastic Pollution",
+  "mentorContent": {
+    "title": "Reducing Plastic Pollution in the Ocean",
+    "paragraphs": [
+      {
+        "id": "p1",
+        "sentenceIds": [
+          "s1",
+          "s2",
+          "s3",
+          "s4",
+          "s5",
+          "s6"
+        ]
+      }
+    ],
+    "sentences": {
+      "s1": {
+        "id": "s1",
+        "originalText": "Our community must reduce the amount of plastic waste in the ocean.",
+        "currentText": "Our community must reduce the amount of plastic waste in the ocean.",
+        "function": "INTRO",
+        "chunks": [
+          {
+            "id": "s1-c1",
+            "text": "Our community",
+            "functionalCategory": "participant",
+            "label": "Who/What"
+          },
+          {
+            "id": "s1-c2",
+            "text": " must reduce ",
+            "functionalCategory": "process",
+            "label": "Action"
+          },
+          {
+            "id": "s1-c3",
+            "text": "the amount of plastic waste in the ocean.",
+            "functionalCategory": "detail",
+            "label": "Details"
+          }
+        ]
+      },
+      "s2": {
+        "id": "s2",
+        "originalText": "Single-use plastics harm vulnerable marine animals like sea turtles.",
+        "currentText": "Single-use plastics harm vulnerable marine animals like sea turtles.",
+        "function": "SEQ",
+        "chunks": [
+          {
+            "id": "s2-c1",
+            "text": "Single-use plastics",
+            "functionalCategory": "participant",
+            "label": "Who/What"
+          },
+          {
+            "id": "s2-c2",
+            "text": " harm ",
+            "functionalCategory": "process",
+            "label": "Action"
+          },
+          {
+            "id": "s2-c3",
+            "text": "vulnerable marine animals like sea turtles.",
+            "functionalCategory": "detail",
+            "label": "Details"
+          }
+        ]
+      },
+      "s3": {
+        "id": "s3",
+        "originalText": "These creatures often mistake floating plastic bags for jellyfish food.",
+        "currentText": "These creatures often mistake floating plastic bags for jellyfish food.",
+        "function": "EXAMPLE_DETAIL",
+        "chunks": [
+          {
+            "id": "s3-c1",
+            "text": "These creatures",
+            "functionalCategory": "participant",
+            "label": "Who/What"
+          },
+          {
+            "id": "s3-c2",
+            "text": " often mistake ",
+            "functionalCategory": "process",
+            "label": "Action"
+          },
+          {
+            "id": "s3-c3",
+            "text": "floating plastic bags for jellyfish food.",
+            "functionalCategory": "detail",
+            "label": "Details"
+          }
+        ]
+      },
+      "s4": {
+        "id": "s4",
+        "originalText": "Plastic pollution destroys the delicate coral reef ecosystems.",
+        "currentText": "Plastic pollution destroys the delicate coral reef ecosystems.",
+        "function": "CAUSE_EFFECT",
+        "chunks": [
+          {
+            "id": "s4-c1",
+            "text": "Plastic pollution",
+            "functionalCategory": "participant",
+            "label": "Who/What"
+          },
+          {
+            "id": "s4-c2",
+            "text": " destroys ",
+            "functionalCategory": "process",
+            "label": "Action"
+          },
+          {
+            "id": "s4-c3",
+            "text": "the delicate coral reef ecosystems.",
+            "functionalCategory": "detail",
+            "label": "Details"
+          }
+        ]
+      },
+      "s5": {
+        "id": "s5",
+        "originalText": "Tiny pieces of trash block the sunlight that reefs need to survive.",
+        "currentText": "Tiny pieces of trash block the sunlight that reefs need to survive.",
+        "function": "EXAMPLE_DETAIL",
+        "chunks": [
+          {
+            "id": "s5-c1",
+            "text": "Tiny pieces of trash",
+            "functionalCategory": "participant",
+            "label": "Who/What"
+          },
+          {
+            "id": "s5-c2",
+            "text": " block ",
+            "functionalCategory": "process",
+            "label": "Action"
+          },
+          {
+            "id": "s5-c3",
+            "text": "the sunlight that reefs need to survive.",
+            "functionalCategory": "detail",
+            "label": "Details"
+          }
+        ]
+      },
+      "s6": {
+        "id": "s6",
+        "originalText": "Everyone should use reusable water bottles to protect our blue planet.",
+        "currentText": "Everyone should use reusable water bottles to protect our blue planet.",
+        "function": "CONCLUSION",
+        "chunks": [
+          {
+            "id": "s6-c1",
+            "text": "Everyone",
+            "functionalCategory": "participant",
+            "label": "Who/What"
+          },
+          {
+            "id": "s6-c2",
+            "text": " should use ",
+            "functionalCategory": "process",
+            "label": "Action"
+          },
+          {
+            "id": "s6-c3",
+            "text": "reusable water bottles to protect our blue planet.",
+            "functionalCategory": "detail",
+            "label": "Details"
+          }
+        ]
+      }
+    },
+    "functionalLabels": {
+      "INTRO": "Claim/Position",
+      "SEQ": "Evidence/Reason",
+      "CAUSE_EFFECT": "Evidence/Reason",
+      "EXAMPLE_DETAIL": "Evidence/Reason",
+      "CONCLUSION": "Call to Action"
+    }
+  },
+  "defaultBank": [
+    {
+      "id": "b1",
+      "originalText": "I strongly believe that...",
+      "currentText": "I strongly believe that...",
+      "function": "INTRO",
+      "section": "STARTERS",
+      "chunks": []
+    },
+    {
+      "id": "b2",
+      "originalText": "One important reason is...",
+      "currentText": "One important reason is...",
+      "function": "SEQ",
+      "section": "STARTERS",
+      "chunks": []
+    },
+    {
+      "id": "b3",
+      "originalText": "According to scientists...",
+      "currentText": "According to scientists...",
+      "function": "EXAMPLE_DETAIL",
+      "section": "STARTERS",
+      "chunks": []
+    },
+    {
+      "id": "b4",
+      "originalText": "This shows that...",
+      "currentText": "This shows that...",
+      "function": "CAUSE_EFFECT",
+      "section": "STARTERS",
+      "chunks": []
+    },
+    {
+      "id": "b5",
+      "originalText": "We must take action by...",
+      "currentText": "We must take action by...",
+      "function": "CONCLUSION",
+      "section": "STARTERS",
+      "chunks": []
+    }
+  ]
+}

@@ -1,13 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import { MENTOR_CONTENT, DEFAULT_BANK } from './data';
-import type { Sentence, SentenceFunction, BankSentence, BankSection } from './types';
-import { Plus, Play, BookOpen, Check, Download, Clipboard, RefreshCw, X, AlertTriangle, Layers } from 'lucide-react';
+import type { Sentence, SentenceFunction, BankSentence, BankSection, Lesson } from './types';
+import { Plus, Play, BookOpen, Check, Download, Clipboard, RefreshCw, X, Layers } from 'lucide-react';
+import LandingPage from './LandingPage';
 import './index.css';
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type DragStartEvent,
+  DragOverlay,
+  rectIntersection,
+  closestCenter,
+  type CollisionDetection,
+  type DragOverEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  rectSortingStrategy,
+} from '@dnd-kit/sortable';
+import { DraggableSentence } from './DraggableSentence';
+import { restrictToWindowEdges } from '@dnd-kit/modifiers';
 
 const App: React.FC = () => {
-  const [sentences, setSentences] = useState<Record<string, Sentence>>({ ...MENTOR_CONTENT.sentences });
-  const [bank, setBank] = useState<BankSentence[]>(DEFAULT_BANK);
-  const [paragraphs, setParagraphs] = useState(() => MENTOR_CONTENT.paragraphs.map(p => ({ ...p })));
+  const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [sentences, setSentences] = useState<Record<string, Sentence>>({});
+  const [bank, setBank] = useState<BankSentence[]>([]);
+  const [paragraphs, setParagraphs] = useState<any[]>([]);
   const [selectedSentenceId, setSelectedSentenceId] = useState<string | null>(null);
   const [mode, setMode] = useState<'SENTENCE' | 'PHRASE' | 'DISCOURSE'>('SENTENCE');
   const [view, setView] = useState<'EDIT' | 'FINISH'>('EDIT');
@@ -18,122 +43,67 @@ const App: React.FC = () => {
   const [editingMentorId, setEditingMentorId] = useState<string | null>(null);
   const [preEditMentorText, setPreEditMentorText] = useState<string>("");
 
-  const [draggingEntity, setDraggingEntity] = useState<{ id: string, source: 'BANK' | 'MENTOR' | 'CHUNK' } | null>(null);
-  const [dragOverTarget, setDragOverTarget] = useState<{ type: 'REPLACE' | 'INSERT' | 'CHUNK_REORDER', id: string, index?: number } | null>(null);
-  const [bankHeight, setBankHeight] = useState(300);
-  const [isResizing, setIsResizing] = useState(false);
+  const [isBankOpen, setIsBankOpen] = useState(true);
+  const [isCreatorMenuOpen, setIsCreatorMenuOpen] = useState(false);
+  const [editingChunkId, setEditingChunkId] = useState<string | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-  // Stop reading when component unmounts
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
   useEffect(() => {
     return () => window.speechSynthesis.cancel();
   }, []);
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isResizing) return;
-      const newHeight = window.innerHeight - e.clientY;
-      // Constrain height
-      if (newHeight > 150 && newHeight < window.innerHeight * 0.7) {
-        setBankHeight(newHeight);
-      }
-    };
-    const handleMouseUp = () => setIsResizing(false);
+    const params = new URLSearchParams(window.location.search);
+    const lessonId = params.get('lesson');
 
-    if (isResizing) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-    }
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isResizing]);
+    if (lessonId) {
+      // Dynamic import to support both weathering and plastic pollution (or future lessons)
+      const lessonPath = lessonId === 'weathering'
+        ? './data/lessons/g4-explain-weathering.json'
+        : `./data/lessons/${lessonId}.json`;
 
-  const handleSelectSentence = (id: string) => {
-    setSelectedSentenceId(id);
-  };
+      import(/* @vite-ignore */ lessonPath).then((data) => {
+        const lesson = data.default as Lesson;
 
-  const handleInsertSentence = (source: { id: string, source: 'BANK' | 'MENTOR' | 'CHUNK' }, paragraphId: string, index: number) => {
-    if (source.source === 'CHUNK') return; // Cannot insert a chunk into a sentence slot
+        // Basic Validation
+        if (!lesson || !lesson.mentorContent || !lesson.defaultBank) {
+          throw new Error("Lesson data is incomplete or malformed.");
+        }
 
-    let sentenceId = source.id;
-
-    if (source.source === 'BANK') {
-      const bankItem = bank.find(b => b.id === source.id);
-      if (!bankItem) return;
-      // We create a NEW sentence instance in mentor text from bank item
-      const newId = `custom-${Date.now()}`;
-      setSentences(prev => ({
-        ...prev,
-        [newId]: {
-          id: newId,
-          originalText: bankItem.currentText,
-          currentText: bankItem.currentText,
-          function: bankItem.function,
-          currentFunction: bankItem.function
-        } as any
-      }));
-      sentenceId = newId;
+        setCurrentLesson(lesson);
+        setSentences({ ...lesson.mentorContent.sentences });
+        setBank([...lesson.defaultBank]);
+        setParagraphs(lesson.mentorContent.paragraphs.map(p => ({ ...p })));
+        setLoading(false);
+      }).catch(err => {
+        console.error(`Failed to load lesson "${lessonId}":`, err);
+        setLoadError(`The lesson "${lessonId}" could not be loaded. It may be missing or contains errors.`);
+        setLoading(false);
+      });
     } else {
-      // If moving within mentor, remove from old position first
-      setParagraphs(prev => prev.map(p => ({
-        ...p,
-        sentenceIds: p.sentenceIds.filter(id => id !== source.id)
-      })));
+      setLoading(false);
     }
+  }, []);
 
-    setParagraphs(prev => prev.map(p => {
-      if (p.id === paragraphId) {
-        const newIds = [...p.sentenceIds];
-        newIds.splice(index, 0, sentenceId);
-        return { ...p, sentenceIds: newIds };
-      }
-      return p;
-    }));
-  };
-
-  const handleMoveParagraph = (dragIndex: number, hoverIndex: number) => {
-    setParagraphs(prev => {
-      const newParagraphs = [...prev];
-      const [removed] = newParagraphs.splice(dragIndex, 1);
-      newParagraphs.splice(hoverIndex, 0, removed);
-      return newParagraphs;
-    });
-  };
-
-  const removeMentorSentence = (id: string, addToBank = true) => {
-    const originalSentence = sentences[id];
-
-    if (addToBank && originalSentence.currentText !== "____") {
-      const textExists = bank.some(b => b.currentText === originalSentence.currentText);
-      if (!textExists) {
-        setBank(prev => [...prev, {
-          ...originalSentence,
-          id: `mentor-${Date.now()}`,
-          section: 'MENTOR_SENTENCES'
-        } as BankSentence]);
-      }
-    }
-
-    // For composition mode, "removal" might mean actually deleting the ID from paragraphs
-    // OR just clearing text if it was an original slot.
-    // User said "returns the sentence to the bank safely". 
-    // Let's remove it from paragraphs entirely if it's a "custom" or "moved" item, 
-    // or set to placeholder if it was an original slot?
-    // Actually, "composition" implies dynamic lines. Let's just remove it from the array.
-    setParagraphs(prev => prev.map(p => ({
-      ...p,
-      sentenceIds: p.sentenceIds.filter(sid => sid !== id)
-    })));
-
-    // Ensure we don't end up with empty paragraphs if we want to keep slots?
-    // User said "insertion should be preferred".
+  const handleSelectLesson = (id: string) => {
+    window.location.search = `?lesson=${id}`;
   };
 
   const speak = (text: string, onEnd?: () => void) => {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.onstart = () => { };
     utterance.onend = () => {
       setReadingSentenceId(null);
       if (onEnd) onEnd();
@@ -149,82 +119,63 @@ const App: React.FC = () => {
   };
 
   const readFullText = () => {
-    const fullText = MENTOR_CONTENT.paragraphs.map(p =>
-      p.sentenceIds.map(id => sentences[id].currentText).join(' ')
+    if (!currentLesson) return;
+    const fullText = paragraphs.map(p =>
+      p.sentenceIds.map((id: string) => sentences[id].currentText).join(' ')
     ).join('\n\n');
     speak(fullText);
   };
 
-  const addBankSentence = () => {
+  const createTemplatedSentence = (category: SentenceFunction) => {
+    const templates: Record<SentenceFunction, string> = {
+      INTRO: "To start with, ____.",
+      SEQ: "Then, ____.",
+      CAUSE_EFFECT: "Because of this, ____ happens.",
+      EXAMPLE_DETAIL: "For example, ____.",
+      CONCLUSION: "In conclusion, ____."
+    };
+
     const newSentence: BankSentence = {
       id: `bank-${Date.now()}`,
-      originalText: "New sentence...",
-      currentText: "New sentence...",
-      function: "EXAMPLE_DETAIL",
-      section: "MY_SENTENCES"
+      originalText: templates[category],
+      currentText: templates[category],
+      function: category,
+      section: "MY_SENTENCES",
+      chunks: []
     };
+
     setBank(prev => [...prev, newSentence]);
+    setEditingBankId(newSentence.id);
+    setIsCreatorMenuOpen(false);
   };
 
-  const moveToTrash = (id: string) => {
-    setBank(prev => prev.map(s => s.id === id ? { ...s, section: 'TRASH' } : s));
-  };
-
-  const recoverFromTrash = (id: string) => {
-    setBank(prev => prev.map(s => {
-      if (s.id === id) {
-        // Return to its likely original section or just MY_SENTENCES?
-        // Let's guess: if it's mentor, return to mentor.
-        if (s.id.startsWith('mentor')) return { ...s, section: 'MENTOR_SENTENCES' };
-        return { ...s, section: 'MY_SENTENCES' };
-      }
-      return s;
-    }));
-  };
-
-  const deletePermanently = (id: string) => {
-    setBank(prev => prev.filter(s => s.id !== id));
-  };
-
-  const updateBankSentence = (id: string, text: string) => {
-    setBank(prev => prev.map(s => s.id === id ? { ...s, currentText: text } : s));
-  };
+  const addBankSentence = () => setIsCreatorMenuOpen(!isCreatorMenuOpen);
+  const moveToTrash = (id: string) => setBank(prev => prev.map(s => s.id === id ? { ...s, section: 'TRASH' } : s));
+  const deletePermanently = (id: string) => setBank(prev => prev.filter(s => s.id !== id));
+  const updateBankSentence = (id: string, text: string) => setBank(prev => prev.map(s => s.id === id ? { ...s, currentText: text } : s));
 
   const updateMentorSentence = (id: string, text: string) => {
     setSentences(prev => ({
       ...prev,
-      [id]: {
-        ...prev[id],
-        currentText: text,
-        // If edited, we can optionally flag it or just clear hotspots as requested
-        hotspots: undefined
-      }
+      [id]: { ...prev[id], currentText: text }
     }));
   };
 
-  const updateHotspot = (sentenceId: string, index: number, text: string) => {
+  const updateChunkText = (sentenceId: string, chunkId: string, text: string) => {
     setSentences(prev => {
       const s = prev[sentenceId];
-      if (!s.hotspots) return prev;
-      const newHotspots = [...s.hotspots];
-      newHotspots[index] = { ...newHotspots[index], text };
-
-      // Update the currentText by replacing the hotspot content
-      // This is tricky because indices might shift. 
-      // Simplified: currentText is reconstructed or just updated live?
-      // Let's assume currentText is what we read, and hotspots are for editing.
-      // We'll update currentText to match the new hotspot value if possible.
-      // For this PoC, we'll just update the hotspot and assume the UI renders it correctly.
-      return {
-        ...prev,
-        [sentenceId]: { ...s, hotspots: newHotspots }
-      };
+      if (!s || !s.chunks) return prev;
+      const formattedText = text.trim() ? ` ${text.trim()} ` : " ";
+      const newChunks = s.chunks.map(c => c.id === chunkId ? { ...c, text: formattedText } : c);
+      const newCurrentText = newChunks.map(c => c.text).join("");
+      return { ...prev, [sentenceId]: { ...s, chunks: newChunks, currentText: newCurrentText } };
     });
   };
 
   const downloadTxt = () => {
-    const text = `${MENTOR_CONTENT.title}\n\n` + MENTOR_CONTENT.paragraphs.map(p =>
-      p.sentenceIds.map(id => sentences[id].currentText).join(' ')
+    if (!currentLesson) return;
+    const text = `${currentLesson.mentorContent.title}\n\n` + paragraphs.map(p =>
+      p.sentenceIds.map((id: string) => sentences[id].currentText).join(' ')
     ).join('\n\n');
     const blob = new Blob([text], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -235,16 +186,18 @@ const App: React.FC = () => {
   };
 
   const copyToClipboard = () => {
-    const text = `${MENTOR_CONTENT.title}\n\n` + MENTOR_CONTENT.paragraphs.map(p =>
-      p.sentenceIds.map(id => sentences[id].currentText).join(' ')
+    if (!currentLesson) return;
+    const text = `${currentLesson.mentorContent.title}\n\n` + paragraphs.map(p =>
+      p.sentenceIds.map((id: string) => sentences[id].currentText).join(' ')
     ).join('\n\n');
     navigator.clipboard.writeText(text);
     alert("Text copied to clipboard!");
   };
 
   const startFresh = () => {
-    setSentences({ ...MENTOR_CONTENT.sentences });
-    setBank(DEFAULT_BANK);
+    if (!currentLesson) return;
+    setSentences({ ...currentLesson.mentorContent.sentences });
+    setBank([...currentLesson.defaultBank]);
     setSelectedSentenceId(null);
     setReadingSentenceId(null);
     setView('EDIT');
@@ -261,15 +214,148 @@ const App: React.FC = () => {
     }
   };
 
+  const hybridCollision: CollisionDetection = (args) => {
+    const rectCollisions = rectIntersection(args);
+    if (rectCollisions.length > 0) return rectCollisions;
+    return closestCenter(args);
+  };
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  };
+
+  const handleDragOver = (event: DragOverEvent) => {
+    const { active, over } = event;
+    if (!over) return;
+
+    const activeId = active.id as string;
+    const overId = over.id as string;
+
+    const activeContainer = active.data.current?.sortable?.containerId || 'bank-droppable';
+    const overContainer = over.data.current?.sortable?.containerId || over.id;
+
+    if (activeId === overId) return;
+
+    // REORDERING within the same paragraph - use arrayMove only
+    if (activeContainer === overContainer && activeContainer.startsWith('p-')) {
+      const pId = activeContainer.replace('p-', '');
+      setParagraphs(prev => prev.map(p => {
+        if (p.id === pId) {
+          const oldIdx = p.sentenceIds.indexOf(activeId);
+          const newIdx = p.sentenceIds.indexOf(overId);
+          if (oldIdx !== -1 && newIdx !== -1) {
+            return { ...p, sentenceIds: arrayMove(p.sentenceIds, oldIdx, newIdx) };
+          }
+        }
+        return p;
+      }));
+      return; // Early return to prevent further processing
+    }
+
+    // MOVING between different containers (bank to paragraph, or paragraph to paragraph)
+    if (activeContainer !== overContainer) {
+      if (overContainer.startsWith('p-')) {
+        const destPId = overContainer.replace('p-', '');
+        setParagraphs(prev => {
+          const activeInAnyP = prev.find(p => p.sentenceIds.includes(activeId));
+
+          if (!activeInAnyP && activeContainer === 'bank-droppable') {
+            // Dragging from bank to a paragraph for the first time
+            return prev.map(p => {
+              if (p.id === destPId) {
+                const overIdx = p.sentenceIds.indexOf(overId);
+                const newIds = [...p.sentenceIds.filter((id: string) => id !== activeId)];
+                const newIdx = overIdx === -1 ? newIds.length : overIdx;
+                newIds.splice(newIdx, 0, activeId);
+                return { ...p, sentenceIds: newIds };
+              }
+              return p;
+            });
+          }
+
+          if (!activeInAnyP) return prev;
+
+          // Moving from one paragraph to another
+          return prev.map(p => {
+            if (p.id === destPId) {
+              const overIdx = p.sentenceIds.indexOf(overId);
+              const newIds = [...p.sentenceIds.filter((id: string) => id !== activeId)];
+              const newIdx = overIdx === -1 ? newIds.length : overIdx;
+              newIds.splice(newIdx, 0, activeId);
+              return { ...p, sentenceIds: newIds };
+            }
+            return { ...p, sentenceIds: p.sentenceIds.filter((id: string) => id !== activeId) };
+          });
+        });
+      }
+    }
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveId(null);
+    if (!over) return;
+
+    const activeId = active.id as string;
+    const overId = over.id as string;
+
+    const activeContainer = active.data.current?.sortable?.containerId || 'bank-droppable';
+    const overContainer = over.data.current?.sortable?.containerId || over.id;
+
+    // Handle Bank to Workspace (Final)
+    if (activeContainer === 'bank-droppable' && overContainer.startsWith('p-')) {
+      const pId = overContainer.replace('p-', '');
+      const bankItem = bank.find(b => b.id === activeId);
+      if (!bankItem) return;
+
+      const newId = `custom-${Date.now()}`;
+      setSentences(prev => ({ ...prev, [newId]: { ...bankItem, id: newId } }));
+      setParagraphs(prev => prev.map(p => {
+        if (p.id === pId) {
+          // Replace the bankId with the newId in the paragraph's sentenceIds
+          // onDragOver might have already inserted activeId (the bank item id)
+          const newIds = p.sentenceIds.map((id: string) => id === activeId ? newId : id);
+          if (!newIds.includes(newId)) {
+            const idx = p.sentenceIds.indexOf(overId);
+            idx === -1 ? newIds.push(newId) : newIds.splice(idx, 0, newId);
+          }
+          return { ...p, sentenceIds: newIds };
+        }
+        // Also remove the bankId from other paragraphs if it was inserted there by onDragOver
+        return { ...p, sentenceIds: p.sentenceIds.filter((id: string) => id !== activeId) };
+      }));
+    } else if (activeContainer.startsWith('p-') && overContainer === 'bank-droppable') {
+      const sentence = sentences[activeId];
+      if (!sentence) return;
+      setBank(prev => [...prev, { ...sentence, id: `bank-${Date.now()}`, section: 'MENTOR_SENTENCES' }]);
+      setParagraphs(prev => prev.map(p => ({ ...p, sentenceIds: p.sentenceIds.filter((id: string) => id !== activeId) })));
+    } else if (activeContainer === overContainer && activeContainer === 'bank-droppable') {
+      setBank(prev => arrayMove(prev, prev.findIndex(i => i.id === activeId), prev.findIndex(i => i.id === overId)));
+    }
+    // Sorting within/between paragraphs is now partially handled in onDragOver
+    // But we might need a final state sync or adjustment here if needed.
+  };
+
+  const handleRemoveSentence = (id: string) => {
+    const sentence = sentences[id];
+    if (!sentence) return;
+
+    // Move back to bank
+    setBank(prev => [...prev, { ...sentence, id: `bank-${Date.now()}`, section: 'MENTOR_SENTENCES' }]);
+
+    // Remove from paragraphs
+    setParagraphs(prev => prev.map(p => ({
+      ...p,
+      sentenceIds: p.sentenceIds.filter((sid: string) => sid !== id)
+    })));
+  };
+
   const renderSentence = (id: string) => {
     const s = sentences[id];
-    if (!s) return null; // Safety for deleted IDs
-
+    if (!s) return null;
+    const isEditing = editingMentorId === id;
     const isSelected = selectedSentenceId === id;
     const isReadingCurrent = readingSentenceId === id;
-    const bankFunc = (s as any).currentFunction;
-    const hasMismatch = bankFunc && bankFunc !== s.function;
-    const isEditing = editingMentorId === id;
 
     if (isEditing) {
       return (
@@ -279,24 +365,10 @@ const App: React.FC = () => {
           suppressContentEditableWarning
           autoFocus
           className={`sentence-card ${showColors ? getFunctionClass((s as any).currentFunction || s.function) : ''} editing`}
-          onBlur={(e) => {
-            updateMentorSentence(id, e.currentTarget.textContent || "");
-            setEditingMentorId(null);
-          }}
+          onBlur={(e) => { updateMentorSentence(id, e.currentTarget.textContent || ""); setEditingMentorId(null); }}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              updateMentorSentence(id, e.currentTarget.textContent || "");
-              setEditingMentorId(null);
-            } else if (e.key === 'Escape') {
-              updateMentorSentence(id, preEditMentorText);
-              setEditingMentorId(null);
-            }
-          }}
-          ref={(el) => {
-            if (el && isEditing) {
-              setTimeout(() => { if (document.activeElement !== el) el.focus(); }, 0);
-            }
+            if (e.key === 'Enter') { e.preventDefault(); updateMentorSentence(id, (e.target as HTMLElement).textContent || ""); setEditingMentorId(null); }
+            else if (e.key === 'Escape') { updateMentorSentence(id, preEditMentorText); setEditingMentorId(null); }
           }}
         >
           {s.currentText}
@@ -304,383 +376,263 @@ const App: React.FC = () => {
       );
     }
 
-    if (mode === 'PHRASE' && s.hotspots) {
-      // Simple Phrase Mode: Text with hotspots
+    if (mode === 'PHRASE') {
       return (
-        <span
-          key={id}
-          className={`sentence-card ${showColors ? getFunctionClass(s.function) : ''} ${isSelected ? 'selected' : ''} ${isReadingCurrent ? 'reading' : ''}`}
-          onClick={() => handleSelectSentence(id)}
-        >
-          {/* We map the original text and replace hotspots. This is complex for a PoC. 
-                    Simpler version: If phrase mode, show the text but allow editing the hotspots explicitly.
-                */}
-          {s.currentText.split(/(____)/).map((part) => {
-            // This splitter doesn't work for arbitrary text.
-            // Let's use the hotspots array.
-            return part;
-          })}
-          {/* Realistic Approach for Phase Mode: Render hotspots as inputs */}
-          {s.hotspots?.map((h, i) => (
-            <span key={i} className="hotspot" contentEditable suppressContentEditableWarning onBlur={(e) => updateHotspot(id, i, e.currentTarget.textContent || "")}>
-              {h.text}
+        <span key={id} className={`phrase-chip-group ${isSelected ? 'selected' : ''}`} onClick={() => setSelectedSentenceId(id)}>
+          {s.chunks.map(chunk => (
+            <span
+              key={chunk.id}
+              className={`functional-chip chip-${chunk.functionalCategory} ${editingChunkId === chunk.id ? 'editing' : ''}`}
+              onClick={(e) => { e.stopPropagation(); setEditingChunkId(chunk.id); }}
+            >
+              {editingChunkId === chunk.id ? (
+                <input
+                  autoFocus
+                  className="functional-chip-text"
+                  defaultValue={chunk.text.trim()}
+                  onBlur={(e) => { updateChunkText(id, chunk.id, e.target.value); setEditingChunkId(null); }}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { updateChunkText(id, chunk.id, (e.target as HTMLInputElement).value); setEditingChunkId(null); } }}
+                />
+              ) : (
+                <span className="functional-chip-text">{chunk.text}</span>
+              )}
             </span>
           ))}
-          {hasMismatch && <span className="warning-badge"><AlertTriangle size={12} /> Mismatch</span>}
         </span>
       );
     }
 
     return (
-      <span
+      <DraggableSentence
         key={id}
-        draggable={mode === 'SENTENCE'}
-        className={`sentence-item mentor-card ${showColors ? getFunctionClass((s as any).currentFunction || s.function) : ''} ${isSelected ? 'selected' : ''} ${isReadingCurrent ? 'reading' : ''} ${dragOverTarget?.id === id ? 'drag-over' : ''}`}
-        style={{ '--insert': dragOverTarget?.id === id ? dragOverTarget.index : undefined } as any}
-        onClick={() => handleSelectSentence(id)}
-        onDoubleClick={() => {
-          setPreEditMentorText(s.currentText);
-          setEditingMentorId(id);
-        }}
-        onDragStart={(e) => {
-          setDraggingEntity({ id, source: 'MENTOR' });
-          e.dataTransfer.setData("text/plain", id);
-        }}
-        onDragEnd={() => {
-          setDraggingEntity(null);
-          setDragOverTarget(null);
-        }}
-        onDragOver={(e) => {
-          e.preventDefault();
-          if (draggingEntity && draggingEntity.id !== id) {
-            const rect = e.currentTarget.getBoundingClientRect();
-            const midpoint = rect.left + rect.width / 2;
-            const type = e.clientX < midpoint ? 'BEFORE' : 'AFTER';
-            // We find the paragraph and index in handleInsertSentence, 
-            // but for visual feedback we can use a temporary target state
-            setDragOverTarget({ type: 'REPLACE', id, index: type === 'BEFORE' ? 0 : 1 }); // Reusing REPLACE type for card-relative feedback
-          }
-        }}
-        onDragLeave={() => setDragOverTarget(null)}
-        onDrop={(e) => {
-          e.preventDefault();
-          if (draggingEntity && draggingEntity.id !== id) {
-            const rect = e.currentTarget.getBoundingClientRect();
-            const midpoint = rect.left + rect.width / 2;
-            const isBefore = e.clientX < midpoint;
-
-            // Find paragraph and index of current sentence
-            paragraphs.forEach(p => {
-              const idx = p.sentenceIds.indexOf(id);
-              if (idx !== -1) {
-                handleInsertSentence(draggingEntity, p.id, isBefore ? idx : idx + 1);
-              }
-            });
-          }
-          setDragOverTarget(null);
-        }}
+        id={id}
+        className={`sentence-card ${isSelected ? 'selected' : ''} ${isReadingCurrent ? 'reading' : ''} ${showColors ? getFunctionClass((s as any).currentFunction || s.function) : ''}`}
+        disabled={false}
       >
-        {s.currentText}
-        {hasMismatch && <span className="warning-badge" title="Function mismatch"><AlertTriangle size={12} /></span>}
-
-        {mode === 'SENTENCE' && (
-          <button
-            className="mentor-remove-btn"
-            onClick={(e) => { e.stopPropagation(); removeMentorSentence(id); }}
-            title="Remove and return to bank"
-          >
+        <span className="sentence-content" onClick={() => setSelectedSentenceId(id)} onDoubleClick={() => { setPreEditMentorText(s.currentText); setEditingMentorId(id); }}>
+          {s.currentText}
+          <button className="workspace-delete-btn" onClick={(e) => { e.stopPropagation(); handleRemoveSentence(id); }}>
             <X size={14} />
           </button>
-        )}
-      </span>
+        </span>
+      </DraggableSentence>
     );
   };
 
-  const InsertionPoint: React.FC<{ paragraphId: string, index: number }> = ({ paragraphId, index }) => {
-    const isTarget = dragOverTarget?.type === 'INSERT' && dragOverTarget.id === paragraphId && dragOverTarget.index === index;
+  const renderDragOverlay = () => {
+    if (!activeId) return null;
 
+    // Check if it's a bank sentence
+    const bankItem = bank.find(s => s.id === activeId);
+    if (bankItem) {
+      return (
+        <div className={`sentence-item bank-card ${getFunctionClass(bankItem.function)} dragging-overlay`}>
+          {bankItem.currentText}
+        </div>
+      );
+    }
+
+    // Check if it's a workspace sentence
+    const sentence = sentences[activeId];
+    if (sentence) {
+      return (
+        <div className={`sentence-card ${getFunctionClass((sentence as any).currentFunction || sentence.function)} dragging-overlay`}>
+          {sentence.currentText}
+        </div>
+      );
+    }
+
+    // Check if it's a paragraph (Discourse mode)
+    const paragraph = paragraphs.find(p => p.id === activeId);
+    if (paragraph) {
+      return (
+        <div className="discourse-chunk dragging-overlay" style={{ background: 'white', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)', boxShadow: '0 8px 30px rgba(0,0,0,0.12)' }}>
+          <div data-label="Paragraph">
+            <p className="paragraph">
+              {paragraph.sentenceIds.map((sid: string) => sentences[sid]?.currentText).join(' ')}
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
+  if (loading) return <div className="loading-screen">Loading lesson...</div>;
+
+  if (loadError) {
     return (
-      <span
-        className={`insertion-point ${isTarget ? 'active' : ''}`}
-        onDragOver={(e) => {
-          e.preventDefault();
-          if (draggingEntity) {
-            setDragOverTarget({ type: 'INSERT', id: paragraphId, index });
-          }
-        }}
-        onDragLeave={() => setDragOverTarget(null)}
-        onDrop={(e) => {
-          e.preventDefault();
-          if (draggingEntity) {
-            handleInsertSentence(draggingEntity, paragraphId, index);
-          }
-          setDragOverTarget(null);
-        }}
-      />
+      <div className="error-screen" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', gap: '2rem', padding: '2rem', textAlign: 'center' }}>
+        <div style={{ fontSize: '4rem' }}>⚠️</div>
+        <h1>Lesson Not Found</h1>
+        <p style={{ color: 'var(--text-secondary)', maxWidth: '500px' }}>{loadError}</p>
+        <button className="primary" onClick={() => window.location.search = ""}>Return to Landing Page</button>
+      </div>
     );
-  };
+  }
+
+  if (!currentLesson) return <LandingPage onSelectLesson={handleSelectLesson} />;
 
   return (
-    <div className={`container ${mode === 'DISCOURSE' ? 'mode-discourse' : ''}`} style={{ paddingBottom: bankHeight + 20 }}>
-      <h1>{MENTOR_CONTENT.title}</h1>
-
-      {view === 'EDIT' && (
-        <div className="legend-container">
-          <span style={{ fontWeight: 'bold', marginRight: '0.5rem' }}>Language Functions:</span>
-          {Object.entries(MENTOR_CONTENT.functionalLabels).map(([key, label]) => {
-            const func = key as SentenceFunction;
-            return (
-              <div key={key} className="legend-item">
-                <span className={`legend-swatch ${getFunctionClass(func)}`}></span>
-                <span>{label}</span>
-              </div>
-            );
-          })}
+    <DndContext
+      sensors={sensors}
+      collisionDetection={hybridCollision}
+      onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
+      onDragEnd={handleDragEnd}
+      modifiers={[restrictToWindowEdges]}
+    >
+      <div className={`container ${mode === 'DISCOURSE' ? 'mode-discourse' : ''}`}>
+        <div className="sticky-header">
+          <header className="main-header">
+            <div className="header-left">
+              <button className={`icon-button ${isBankOpen ? 'active' : ''}`} onClick={() => setIsBankOpen(!isBankOpen)}>
+                <BookOpen size={20} />
+              </button>
+              <h1>{currentLesson.mentorContent.title}</h1>
+            </div>
+            <div className="controls">
+              <button className={`btn-mode ${mode === 'SENTENCE' ? 'active' : ''}`} onClick={() => setMode('SENTENCE')}><BookOpen size={20} /> Sentence Mode</button>
+              <button className={`btn-mode ${mode === 'PHRASE' ? 'active' : ''}`} onClick={() => setMode('PHRASE')}><Plus size={20} /> Phrase Mode</button>
+              <button className={`btn-mode ${mode === 'DISCOURSE' ? 'active' : ''}`} onClick={() => setMode('DISCOURSE')}><Layers size={20} /> Discourse Mode</button>
+              <button className="secondary" onClick={readSentence} disabled={!selectedSentenceId}><Play size={20} /> Read Sentence</button>
+              <button className="secondary" onClick={readFullText}><Play size={20} /> Read Full Text</button>
+              <button className="primary" onClick={() => setView('FINISH')}><Check size={20} /> Finish</button>
+            </div>
+          </header>
         </div>
-      )}
 
-      {view === 'EDIT' ? (
-        <>
-          <div className="controls">
-            <button className={`btn-mode ${mode === 'SENTENCE' ? 'active' : ''}`} onClick={() => setMode('SENTENCE')}>
-              <BookOpen size={20} /> Sentence Mode
-            </button>
-            <button className={`btn-mode ${mode === 'PHRASE' ? 'active' : ''}`} onClick={() => setMode('PHRASE')}>
-              <Plus size={20} /> Phrase Mode
-            </button>
-            <button className={`btn-mode ${mode === 'DISCOURSE' ? 'active' : ''}`} onClick={() => setMode('DISCOURSE')}>
-              <Layers size={20} /> Discourse Mode
-            </button>
-            <div style={{ width: 1, background: '#e2e8f0', margin: '0 8px' }}></div>
-            <button className="secondary" onClick={readSentence} disabled={!selectedSentenceId}>
-              <Play size={20} /> Read Sentence
-            </button>
-            <button className="secondary" onClick={readFullText}>
-              <Play size={20} /> Read Full Text
-            </button>
-            <button className="primary" onClick={() => setView('FINISH')}>
-              <Check size={20} /> Finish
-            </button>
-          </div>
-
-          <div className="mentor-area paragraph-canvas">
-
-            {paragraphs.map((p, index) => {
-              const isDiscourse = mode === 'DISCOURSE';
-              const isDragTarget = dragOverTarget?.type === 'CHUNK_REORDER' && dragOverTarget.id === p.id;
-              const isDragging = draggingEntity?.source === 'CHUNK' && draggingEntity.id === p.id;
-
-              const content = (
-                <>
-                  {p.sentenceIds.map((id, idx) => (
-                    <React.Fragment key={id}>
-                      {mode !== 'DISCOURSE' && <InsertionPoint paragraphId={p.id} index={idx} />}
-                      {renderSentence(id)}
-                    </React.Fragment>
-                  ))}
-                  {mode !== 'DISCOURSE' && <InsertionPoint paragraphId={p.id} index={p.sentenceIds.length} />}
-                </>
-              );
-
-              if (isDiscourse) {
-                return (
-                  <div
-                    key={p.id}
-                    className={`discourse-chunk ${isDragTarget ? 'drag-target' : ''} ${isDragging ? 'dragging' : ''}`}
-                    data-label={`Chunk ${index + 1}`}
-                    draggable
-                    onDragStart={(e) => {
-                      setDraggingEntity({ id: p.id, source: 'CHUNK' });
-                      e.dataTransfer.setData("text/plain", p.id);
-                      e.dataTransfer.effectAllowed = 'move';
-                    }}
-                    onDragOver={(e) => {
-                      e.preventDefault();
-                      if (draggingEntity?.source === 'CHUNK' && draggingEntity.id !== p.id) {
-                        setDragOverTarget({ type: 'CHUNK_REORDER', id: p.id });
-                      }
-                    }}
-                    onDragLeave={() => {
-                      if (dragOverTarget?.id === p.id) {
-                        setDragOverTarget(null);
-                      }
-                    }}
-                    onDrop={(e) => {
-                      e.preventDefault();
-                      setDragOverTarget(null);
-                      if (draggingEntity?.source === 'CHUNK' && draggingEntity.id !== p.id) {
-                        const dragIndex = paragraphs.findIndex(px => px.id === draggingEntity.id);
-                        const hoverIndex = index;
-                        handleMoveParagraph(dragIndex, hoverIndex);
-                        setDraggingEntity(null);
-                      }
-                    }}
-                  >
-                    <p className="paragraph">{content}</p>
-                  </div>
-                );
-              }
-
-              return (
-                <p key={p.id} className="paragraph">
-                  {content}
-                </p>
-              );
-            })}
-          </div>
-
-
-          <div className="resize-divider" onMouseDown={() => setIsResizing(true)}>
-            <div className="drag-handle"></div>
-          </div>
-
-          <div className="bank-area" style={{ height: bankHeight, flex: 'none' }}>
-            <div className="bank-header">
-              <h2>Sentence Bank</h2>
-              <button className="secondary" onClick={addBankSentence}><Plus size={16} /> Add Sentence</button>
+        <div className="legend-bar">
+          {Object.entries(currentLesson.mentorContent.functionalLabels).map(([key, label]) => (
+            <div key={key} className="legend-item">
+              <span className={`legend-swatch ${getFunctionClass(key as SentenceFunction)}`}></span>
+              <span>{label}</span>
             </div>
+          ))}
+        </div>
 
-            <div
-              className="bank-sections"
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => {
-                e.preventDefault();
-                if (draggingEntity && draggingEntity.source === 'MENTOR') {
-                  removeMentorSentence(draggingEntity.id, true);
-                }
-              }}
-            >
-              {(['STARTERS', 'MY_SENTENCES', 'MENTOR_SENTENCES', 'TRASH'] as BankSection[]).map(section => {
-                const items = bank.filter(b => b.section === section);
-                if (items.length === 0 && section !== 'STARTERS') return null;
+        {view === 'EDIT' ? (
+          <div className="main-layout">
+            <div className={`bank-area ${!isBankOpen ? 'closed' : ''}`}>
+              <div className="bank-header">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <button className="secondary" onClick={() => setIsBankOpen(false)} style={{ padding: '4px' }}><X size={16} /></button>
+                  <h2 style={{ margin: 0 }}>Sentence Bank</h2>
+                </div>
+                <button className="secondary" onClick={addBankSentence}><Plus size={16} /> Add Sentence</button>
+              </div>
+              {isCreatorMenuOpen && (
+                <div className="creator-menu">
+                  <div className="creator-menu-title">Pick a Category</div>
+                  <div className="creator-menu-grid">
+                    {(['INTRO', 'SEQ', 'CAUSE_EFFECT', 'EXAMPLE_DETAIL', 'CONCLUSION'] as SentenceFunction[]).map(cat => (
+                      <button key={cat} className={`creator-option ${cat.toLowerCase()}`} onClick={() => createTemplatedSentence(cat)}>
+                        {currentLesson.mentorContent.functionalLabels[cat]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-                const sectionTitles: Record<BankSection, string> = {
-                  STARTERS: "Starters",
-                  MY_SENTENCES: "My Sentences",
-                  MENTOR_SENTENCES: "Mentor Sentences",
-                  TRASH: "Trash (Recoverable)"
-                };
-
-                return (
-                  <div key={section} className="bank-section">
-                    <h3>{sectionTitles[section]}</h3>
-                    <div className="bank-grid">
-                      {items.map(s => (
-                        <div
-                          key={s.id}
-                          draggable={editingBankId !== s.id}
-                          className={`sentence-item bank-card ${getFunctionClass(s.function)} ${editingBankId === s.id ? 'editing' : ''}`}
-                          onClick={() => section === 'TRASH' ? recoverFromTrash(s.id) : null}
-                          onDoubleClick={() => setEditingBankId(s.id)}
-                          onDragStart={(e) => {
-                            if (editingBankId !== s.id) {
-                              setDraggingEntity({ id: s.id, source: 'BANK' });
-                              e.dataTransfer.setData("text/plain", s.id);
-                            } else {
-                              e.preventDefault();
-                            }
-                          }}
-                          onDragEnd={() => setDraggingEntity(null)}
-                        >
-                          {editingBankId === s.id ? (
-                            <span
-                              contentEditable
-                              suppressContentEditableWarning
-                              autoFocus
-                              className="bank-edit-inline"
-                              onBlur={(e) => {
-                                updateBankSentence(s.id, e.currentTarget.textContent || "");
-                                setEditingBankId(null);
-                              }}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  e.preventDefault();
-                                  updateBankSentence(s.id, e.currentTarget.textContent || "");
-                                  setEditingBankId(null);
-                                } else if (e.key === 'Escape') {
-                                  updateBankSentence(s.id, preEditBankText);
-                                  setEditingBankId(null);
-                                }
-                              }}
-                              ref={(el) => {
-                                if (el && editingBankId === s.id) {
-                                  setPreEditBankText(s.currentText);
-                                  setTimeout(() => el.focus(), 0);
-                                }
-                              }}
+              <SortableContext items={bank.map(s => s.id)} strategy={verticalListSortingStrategy} id="bank-droppable">
+                <div className="bank-sections">
+                  {(['STARTERS', 'MY_SENTENCES', 'MENTOR_SENTENCES', 'TRASH'] as BankSection[]).map(section => {
+                    const items = bank.filter(b => b.section === section);
+                    if (items.length === 0 && section !== 'STARTERS') return null;
+                    const titles = { STARTERS: "Starters", MY_SENTENCES: "My Sentences", MENTOR_SENTENCES: "Mentor Sentences", TRASH: "Trash" };
+                    return (
+                      <div key={section} className="bank-section">
+                        <h3>{titles[section]}</h3>
+                        <div className="bank-grid">
+                          {items.map(s => (
+                            <DraggableSentence
+                              key={s.id}
+                              id={s.id}
+                              className={`sentence-item bank-card ${getFunctionClass(s.function)} ${editingBankId === s.id ? 'editing' : ''}`}
                             >
-                              {s.currentText}
-                            </span>
-                          ) : (
-                            <div>{s.currentText}</div>
-                          )}
-
-                          {section !== 'TRASH' ? (
-                            <button
-                              className="delete-btn"
-                              style={{ position: 'absolute', top: 5, right: 5, padding: 2, background: 'transparent' }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                moveToTrash(s.id);
-                              }}
-                            >
-                              <X size={14} />
-                            </button>
-                          ) : (
-                            <button
-                              className="delete-btn"
-                              style={{ position: 'absolute', top: 5, right: 5, padding: 2, background: 'transparent' }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                deletePermanently(s.id);
-                              }}
-                            >
-                              <X size={14} style={{ color: 'red' }} />
-                            </button>
-                          )}
+                              <div onDoubleClick={() => { setPreEditBankText(s.currentText); setEditingBankId(s.id); }} style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                {editingBankId === s.id ? (
+                                  <input autoFocus value={s.currentText} onChange={(e) => updateBankSentence(s.id, e.target.value)} onBlur={() => setEditingBankId(null)} onKeyDown={(e) => e.key === 'Enter' ? setEditingBankId(null) : e.key === 'Escape' && (updateBankSentence(s.id, preEditBankText), setEditingBankId(null))} />
+                                ) : s.currentText}
+                                <button className="delete-btn" onClick={(e) => { e.stopPropagation(); section === 'TRASH' ? deletePermanently(s.id) : moveToTrash(s.id); }}><X size={14} /></button>
+                              </div>
+                            </DraggableSentence>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
+                      </div>
+                    );
+                  })}
+                </div>
+              </SortableContext>
             </div>
-          </div>
-        </>
-      ) : (
-        <div className="finish-view">
-          <div className="controls">
-            <button className="secondary" onClick={() => setView('EDIT')}>Back to Edit</button>
-            <button className="secondary" onClick={() => setShowColors(!showColors)}>
-              {showColors ? "Hide Colors" : "Show Colors"}
-            </button>
-            <button className="secondary" onClick={copyToClipboard}><Clipboard size={20} /> Copy</button>
-            <button className="secondary" onClick={downloadTxt}><Download size={20} /> Download .txt</button>
-            <button className="secondary" style={{ color: 'red' }} onClick={startFresh}><RefreshCw size={20} /> Start Fresh</button>
-          </div>
+            <div className="workspace">
+              <div className="mentor-area paragraph-canvas">
+                {paragraphs.map((p, pIdx) => {
+                  const isDiscourse = mode === 'DISCOURSE';
+                  const paragraphContent = (
+                    <SortableContext items={p.sentenceIds} strategy={rectSortingStrategy} id={`p-${p.id}`}>
+                      {p.sentenceIds.map((id: string) => <React.Fragment key={id}>{renderSentence(id)}</React.Fragment>)}
+                    </SortableContext>
+                  );
 
-          <div className={`finish-text ${showColors ? 'showing-colors' : ''}`}>
-            <h2>{MENTOR_CONTENT.title}</h2>
-            {MENTOR_CONTENT.paragraphs.map(p => (
-              <p key={p.id}>
-                {p.sentenceIds.map(id => {
-                  const s = sentences[id];
-                  const func = (s as any).currentFunction || s.function;
-                  return (
-                    <span key={id} className={showColors ? getFunctionClass(func) : ''} style={{ padding: showColors ? '2px 4px' : '0', borderRadius: '4px' }}>
-                      {s.currentText}{' '}
-                    </span>
+                  return isDiscourse ? (
+                    <DraggableSentence key={p.id} id={p.id} className="discourse-chunk">
+                      <div data-label={`Paragraph ${pIdx + 1}`}><p className="paragraph">{paragraphContent}</p></div>
+                    </DraggableSentence>
+                  ) : (
+                    <div key={p.id} className="composition-paragraph-wrapper">
+                      <div className="paragraph-label">Paragraph {pIdx + 1}</div>
+                      <p className="paragraph">{paragraphContent}</p>
+                    </div>
                   );
                 })}
-              </p>
-            ))}
+              </div>
+            </div>
           </div>
-        </div>
-      )
-      }
-
-      {/* Modal removed as Trash is direct move */}
-    </div >
+        ) : (
+          <div className="finish-view">
+            <div className="finish-header">
+              <button className="secondary" onClick={() => setView('EDIT')}><RefreshCw size={20} /> Back</button>
+              <div className="finish-actions">
+                <button className="secondary" onClick={copyToClipboard}><Clipboard size={20} /> Copy</button>
+                <button className="secondary" onClick={downloadTxt}><Download size={20} /> Download</button>
+                <button className="primary" onClick={startFresh}><RefreshCw size={20} /> Reset</button>
+              </div>
+            </div>
+            <div className={`finish-text ${showColors ? 'showing-colors' : ''}`}>
+              <div className="finish-content">
+                <h2>{currentLesson.mentorContent.title}</h2>
+                {paragraphs.map((p: any) => (
+                  <p key={p.id} className="finish-paragraph">
+                    {p.sentenceIds.map((id: string) => (
+                      <span key={id} className={showColors ? getFunctionClass(sentences[id].currentFunction || sentences[id].function) : ''}>
+                        {sentences[id].currentText}{' '}
+                      </span>
+                    ))}
+                  </p>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+      <div className="view-toggle" style={{ position: 'fixed', bottom: 20, right: 20, zIndex: 100 }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'white', padding: '8px 16px', borderRadius: 'full', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+          <input type="checkbox" checked={showColors} onChange={() => setShowColors(!showColors)} />
+          <span>Show Colors</span>
+        </label>
+      </div>
+      <DragOverlay
+        dropAnimation={null}
+        style={{
+          position: 'fixed',
+          zIndex: 9999,
+        }}
+      >
+        {renderDragOverlay()}
+      </DragOverlay>
+    </DndContext>
   );
 };
 

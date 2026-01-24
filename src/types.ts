@@ -1,7 +1,12 @@
 export type SentenceFunction = 'INTRO' | 'SEQ' | 'CAUSE_EFFECT' | 'EXAMPLE_DETAIL' | 'CONCLUSION';
 
-export interface PhraseHotspot {
+export type FunctionalCategory = 'participant' | 'process' | 'detail';
+
+export interface Chunk {
+    id: string;
     text: string;
+    functionalCategory: FunctionalCategory;
+    label: string;
 }
 
 export interface Sentence {
@@ -9,7 +14,9 @@ export interface Sentence {
     originalText: string;
     currentText: string;
     function: SentenceFunction;
-    hotspots?: PhraseHotspot[];
+    currentFunction?: SentenceFunction;
+    hotspots?: { text: string }[];
+    chunks: Chunk[];
 }
 
 export interface Paragraph {
@@ -30,8 +37,15 @@ export interface BankSentence extends Sentence {
     section: BankSection;
 }
 
+export interface Lesson {
+    id: string;
+    title: string;
+    mentorContent: MentorData;
+    defaultBank: BankSentence[];
+}
+
 export interface AppState {
-    hasStarted: boolean; // For landing or reset state
+    hasStarted: boolean;
     mode: 'SENTENCE' | 'PHRASE' | 'DISCOURSE';
     selectedSentenceId: string | null;
     sentences: Record<string, Sentence>;

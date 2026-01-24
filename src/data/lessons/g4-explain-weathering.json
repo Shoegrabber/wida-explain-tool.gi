@@ -1,0 +1,898 @@
+{
+    "id": "weathering",
+    "title": "Grade 4 Science: Weathering and Erosion",
+    "mentorContent": {
+        "title": "How Weathering and Erosion Shape the Earth",
+        "paragraphs": [
+            {
+                "id": "p1",
+                "sentenceIds": [
+                    "s1",
+                    "s2",
+                    "s3"
+                ]
+            },
+            {
+                "id": "p2",
+                "sentenceIds": [
+                    "s4",
+                    "s5",
+                    "s6",
+                    "s7",
+                    "s8",
+                    "s9"
+                ]
+            },
+            {
+                "id": "p3",
+                "sentenceIds": [
+                    "s10",
+                    "s11",
+                    "s12",
+                    "s13",
+                    "s14"
+                ]
+            },
+            {
+                "id": "p4",
+                "sentenceIds": [
+                    "s15",
+                    "s16",
+                    "s17",
+                    "s18"
+                ]
+            }
+        ],
+        "sentences": {
+            "s1": {
+                "id": "s1",
+                "originalText": "Weathering and erosion are two natural processes that slowly change Earth’s surface.",
+                "currentText": "Weathering and erosion are two natural processes that slowly change Earth’s surface.",
+                "function": "INTRO",
+                "chunks": [
+                    {
+                        "id": "s1-c1",
+                        "text": "Weathering and erosion",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s1-c2",
+                        "text": "are",
+                        "functionalCategory": "process",
+                        "label": "Action"
+                    },
+                    {
+                        "id": "s1-c3",
+                        "text": "two natural processes",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s1-c4",
+                        "text": "that slowly change",
+                        "functionalCategory": "process",
+                        "label": "Action"
+                    },
+                    {
+                        "id": "s1-c5",
+                        "text": "Earth’s surface.",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    }
+                ]
+            },
+            "s2": {
+                "id": "s2",
+                "originalText": "While weathering means breaking down rocks into smaller pieces, erosion is the movement of those pieces to new places.",
+                "currentText": "While weathering means breaking down rocks into smaller pieces, erosion is the movement of those pieces to new places.",
+                "function": "INTRO",
+                "chunks": [
+                    {
+                        "id": "s2-c1",
+                        "text": "While",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    },
+                    {
+                        "id": "s2-c2",
+                        "text": "weathering",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s2-c3",
+                        "text": "means breaking down",
+                        "functionalCategory": "process",
+                        "label": "Action"
+                    },
+                    {
+                        "id": "s2-c4",
+                        "text": "rocks",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s2-c5",
+                        "text": "into smaller pieces,",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    },
+                    {
+                        "id": "s2-c6",
+                        "text": "erosion",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s2-c7",
+                        "text": "is",
+                        "functionalCategory": "process",
+                        "label": "Action"
+                    },
+                    {
+                        "id": "s2-c8",
+                        "text": "the movement of those pieces",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s2-c9",
+                        "text": "to new places.",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    }
+                ]
+            },
+            "s3": {
+                "id": "s3",
+                "originalText": "Together, weathering and erosion explain how huge rocks can turn into tiny grains of sand over time.",
+                "currentText": "Together, weathering and erosion explain how huge rocks can turn into tiny grains of sand over time.",
+                "function": "INTRO",
+                "chunks": [
+                    {
+                        "id": "s3-c1",
+                        "text": "Together,",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    },
+                    {
+                        "id": "s3-c2",
+                        "text": "weathering and erosion",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s3-c3",
+                        "text": "explain",
+                        "functionalCategory": "process",
+                        "label": "Action"
+                    },
+                    {
+                        "id": "s3-c4",
+                        "text": "how huge rocks",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s3-c5",
+                        "text": "can turn into",
+                        "functionalCategory": "process",
+                        "label": "Action"
+                    },
+                    {
+                        "id": "s3-c6",
+                        "text": "tiny grains of sand",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s3-c7",
+                        "text": "over time.",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    }
+                ]
+            },
+            "s4": {
+                "id": "s4",
+                "originalText": "First, weathering cracks and wears down rock.",
+                "currentText": "First, weathering cracks and wears down rock.",
+                "function": "SEQ",
+                "chunks": [
+                    {
+                        "id": "s4-c1",
+                        "text": "First,",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    },
+                    {
+                        "id": "s4-c2",
+                        "text": "weathering",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s4-c3",
+                        "text": "cracks and wears down",
+                        "functionalCategory": "process",
+                        "label": "Action"
+                    },
+                    {
+                        "id": "s4-c4",
+                        "text": "rock.",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    }
+                ]
+            },
+            "s5": {
+                "id": "s5",
+                "originalText": "For example, water can seep into cracks in a boulder.",
+                "currentText": "For example, water can seep into cracks in a boulder.",
+                "function": "EXAMPLE_DETAIL",
+                "chunks": [
+                    {
+                        "id": "s5-c1",
+                        "text": "For example,",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    },
+                    {
+                        "id": "s5-c2",
+                        "text": "water",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s5-c3",
+                        "text": "can seep",
+                        "functionalCategory": "process",
+                        "label": "Action"
+                    },
+                    {
+                        "id": "s5-c4",
+                        "text": "into cracks in a boulder.",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    }
+                ]
+            },
+            "s6": {
+                "id": "s6",
+                "originalText": "When the temperature drops, the water freezes and expands, so the rock splits apart.",
+                "currentText": "When the temperature drops, the water freezes and expands, so the rock splits apart.",
+                "function": "CAUSE_EFFECT",
+                "chunks": [
+                    {
+                        "id": "s6-c1",
+                        "text": "When",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    },
+                    {
+                        "id": "s6-c2",
+                        "text": "the temperature",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s6-c3",
+                        "text": "drops,",
+                        "functionalCategory": "process",
+                        "label": "Action"
+                    },
+                    {
+                        "id": "s6-c4",
+                        "text": "the water",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s6-c5",
+                        "text": "freezes and expands,",
+                        "functionalCategory": "process",
+                        "label": "Action"
+                    },
+                    {
+                        "id": "s6-c6",
+                        "text": "so",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    },
+                    {
+                        "id": "s6-c7",
+                        "text": "the rock",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s6-c8",
+                        "text": "splits apart.",
+                        "functionalCategory": "process",
+                        "label": "Action"
+                    }
+                ]
+            },
+            "s7": {
+                "id": "s7",
+                "originalText": "Similarly, wind can blow sand against rock and slowly grind it down.",
+                "currentText": "Similarly, wind can blow sand against rock and slowly grind it down.",
+                "function": "EXAMPLE_DETAIL",
+                "chunks": [
+                    {
+                        "id": "s7-c1",
+                        "text": "Similarly,",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    },
+                    {
+                        "id": "s7-c2",
+                        "text": "wind",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s7-c3",
+                        "text": "can blow",
+                        "functionalCategory": "process",
+                        "label": "Action"
+                    },
+                    {
+                        "id": "s7-c4",
+                        "text": "sand",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s7-c5",
+                        "text": "against rock",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    },
+                    {
+                        "id": "s7-c6",
+                        "text": "and slowly grind",
+                        "functionalCategory": "process",
+                        "label": "Action"
+                    },
+                    {
+                        "id": "s7-c7",
+                        "text": "it",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s7-c8",
+                        "text": "down.",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    }
+                ]
+            },
+            "s8": {
+                "id": "s8",
+                "originalText": "Even plant roots can grow into cracks and pry rocks apart.",
+                "currentText": "Even plant roots can grow into cracks and pry rocks apart.",
+                "function": "EXAMPLE_DETAIL",
+                "chunks": [
+                    {
+                        "id": "s8-c1",
+                        "text": "Even",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    },
+                    {
+                        "id": "s8-c2",
+                        "text": "plant roots",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s8-c3",
+                        "text": "can grow",
+                        "functionalCategory": "process",
+                        "label": "Action"
+                    },
+                    {
+                        "id": "s8-c4",
+                        "text": "into cracks",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    },
+                    {
+                        "id": "s8-c5",
+                        "text": "and pry",
+                        "functionalCategory": "process",
+                        "label": "Action"
+                    },
+                    {
+                        "id": "s8-c6",
+                        "text": "rocks",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s8-c7",
+                        "text": "apart.",
+                        "functionalCategory": "process",
+                        "label": "Action"
+                    }
+                ]
+            },
+            "s9": {
+                "id": "s9",
+                "originalText": "As a result of weathering, even hard rock breaks into smaller pieces after many years.",
+                "currentText": "As a result of weathering, even hard rock breaks into smaller pieces after many years.",
+                "function": "CAUSE_EFFECT",
+                "chunks": [
+                    {
+                        "id": "s9-c1",
+                        "text": "As a result of weathering,",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    },
+                    {
+                        "id": "s9-c2",
+                        "text": "even",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    },
+                    {
+                        "id": "s9-c3",
+                        "text": "hard rock",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s9-c4",
+                        "text": "breaks",
+                        "functionalCategory": "process",
+                        "label": "Action"
+                    },
+                    {
+                        "id": "s9-c5",
+                        "text": "into smaller pieces",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    },
+                    {
+                        "id": "s9-c6",
+                        "text": "after many years.",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    }
+                ]
+            },
+            "s10": {
+                "id": "s10",
+                "originalText": "Next, erosion carries the broken pieces away.",
+                "currentText": "Next, erosion carries the broken pieces away.",
+                "function": "SEQ",
+                "chunks": [
+                    {
+                        "id": "s10-c1",
+                        "text": "Next,",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    },
+                    {
+                        "id": "s10-c2",
+                        "text": "erosion",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s10-c3",
+                        "text": "carries",
+                        "functionalCategory": "process",
+                        "label": "Action"
+                    },
+                    {
+                        "id": "s10-c4",
+                        "text": "the broken pieces",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s10-c5",
+                        "text": "away.",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    }
+                ]
+            },
+            "s11": {
+                "id": "s11",
+                "originalText": "First, flowing water washes small rock pieces into streams and rivers.",
+                "currentText": "First, flowing water washes small rock pieces into streams and rivers.",
+                "function": "SEQ",
+                "chunks": [
+                    {
+                        "id": "s11-c1",
+                        "text": "First,",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    },
+                    {
+                        "id": "s11-c2",
+                        "text": "flowing water",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s11-c3",
+                        "text": "washes",
+                        "functionalCategory": "process",
+                        "label": "Action"
+                    },
+                    {
+                        "id": "s11-c4",
+                        "text": "small rock pieces",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s11-c5",
+                        "text": "into streams and rivers.",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    }
+                ]
+            },
+            "s12": {
+                "id": "s12",
+                "originalText": "Then the wind picks up dust and sand and blows it to new places.",
+                "currentText": "Then the wind picks up dust and sand and blows it to new places.",
+                "function": "SEQ",
+                "chunks": [
+                    {
+                        "id": "s12-c1",
+                        "text": "Then",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    },
+                    {
+                        "id": "s12-c2",
+                        "text": "the wind",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s12-c3",
+                        "text": "picks up",
+                        "functionalCategory": "process",
+                        "label": "Action"
+                    },
+                    {
+                        "id": "s12-c4",
+                        "text": "dust and sand",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s12-c5",
+                        "text": "and blows",
+                        "functionalCategory": "process",
+                        "label": "Action"
+                    },
+                    {
+                        "id": "s12-c6",
+                        "text": "it",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s12-c7",
+                        "text": "to new places.",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    }
+                ]
+            },
+            "s13": {
+                "id": "s13",
+                "originalText": "Finally, gravity can cause rocks and soil to roll downhill.",
+                "currentText": "Finally, gravity can cause rocks and soil to roll downhill.",
+                "function": "SEQ",
+                "chunks": [
+                    {
+                        "id": "s13-c1",
+                        "text": "Finally,",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    },
+                    {
+                        "id": "s13-c2",
+                        "text": "gravity",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s13-c3",
+                        "text": "can cause",
+                        "functionalCategory": "process",
+                        "label": "Action"
+                    },
+                    {
+                        "id": "s13-c4",
+                        "text": "rocks and soil",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s13-c5",
+                        "text": "to roll",
+                        "functionalCategory": "process",
+                        "label": "Action"
+                    },
+                    {
+                        "id": "s13-c6",
+                        "text": "downhill.",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    }
+                ]
+            },
+            "s14": {
+                "id": "s14",
+                "originalText": "As a result, bits of rock that started on a mountain might end up far away from where they began.",
+                "currentText": "As a result, bits of rock that started on a mountain might end up far away from where they began.",
+                "function": "CAUSE_EFFECT",
+                "chunks": [
+                    {
+                        "id": "s14-c1",
+                        "text": "As a result,",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    },
+                    {
+                        "id": "s14-c2",
+                        "text": "bits of rock",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s14-c3",
+                        "text": "that started on a mountain",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    },
+                    {
+                        "id": "s14-c4",
+                        "text": "might end up",
+                        "functionalCategory": "process",
+                        "label": "Action"
+                    },
+                    {
+                        "id": "s14-c5",
+                        "text": "far away from where they began.",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    }
+                ]
+            },
+            "s15": {
+                "id": "s15",
+                "originalText": "In conclusion, weathering and erosion work together to slowly reshape the land.",
+                "currentText": "In conclusion, weathering and erosion work together to slowly reshape the land.",
+                "function": "CONCLUSION",
+                "chunks": [
+                    {
+                        "id": "s15-c1",
+                        "text": "In conclusion,",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    },
+                    {
+                        "id": "s15-c2",
+                        "text": "weathering and erosion",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s15-c3",
+                        "text": "work together",
+                        "functionalCategory": "process",
+                        "label": "Action"
+                    },
+                    {
+                        "id": "s15-c4",
+                        "text": "to slowly reshape",
+                        "functionalCategory": "process",
+                        "label": "Action"
+                    },
+                    {
+                        "id": "s15-c5",
+                        "text": "the land.",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    }
+                ]
+            },
+            "s16": {
+                "id": "s16",
+                "originalText": "Over a long time, mountains become smaller while valleys get deeper.",
+                "currentText": "Over a long time, mountains become smaller while valleys get deeper.",
+                "function": "EXAMPLE_DETAIL",
+                "chunks": [
+                    {
+                        "id": "s16-c1",
+                        "text": "Over a long time,",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    },
+                    {
+                        "id": "s16-c2",
+                        "text": "mountains",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s16-c3",
+                        "text": "become",
+                        "functionalCategory": "process",
+                        "label": "Action"
+                    },
+                    {
+                        "id": "s16-c4",
+                        "text": "smaller",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    },
+                    {
+                        "id": "s16-c5",
+                        "text": "while",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    },
+                    {
+                        "id": "s16-c6",
+                        "text": "valleys",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s16-c7",
+                        "text": "get",
+                        "functionalCategory": "process",
+                        "label": "Action"
+                    },
+                    {
+                        "id": "s16-c8",
+                        "text": "deeper.",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    }
+                ]
+            },
+            "s17": {
+                "id": "s17",
+                "originalText": "Because of these processes, even a tall, jagged mountain can turn into a lower, rounded hill.",
+                "currentText": "Because of these processes, even a tall, jagged mountain can turn into a lower, rounded hill.",
+                "function": "CAUSE_EFFECT",
+                "chunks": [
+                    {
+                        "id": "s17-c1",
+                        "text": "Because of these processes,",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    },
+                    {
+                        "id": "s17-c2",
+                        "text": "even",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    },
+                    {
+                        "id": "s17-c3",
+                        "text": "a tall, jagged mountain",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s17-c4",
+                        "text": "can turn into",
+                        "functionalCategory": "process",
+                        "label": "Action"
+                    },
+                    {
+                        "id": "s17-c5",
+                        "text": "a lower, rounded hill.",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    }
+                ]
+            },
+            "s18": {
+                "id": "s18",
+                "originalText": "Weathering and erosion are always changing the Earth’s surface little by little each day.",
+                "currentText": "Weathering and erosion are always changing the Earth’s surface little by little each day.",
+                "function": "CONCLUSION",
+                "chunks": [
+                    {
+                        "id": "s18-c1",
+                        "text": "Weathering and erosion",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s18-c2",
+                        "text": "are always changing",
+                        "functionalCategory": "process",
+                        "label": "Action"
+                    },
+                    {
+                        "id": "s18-c3",
+                        "text": "the Earth’s surface",
+                        "functionalCategory": "participant",
+                        "label": "Who/What"
+                    },
+                    {
+                        "id": "s18-c4",
+                        "text": "little by little each day.",
+                        "functionalCategory": "detail",
+                        "label": "Details"
+                    }
+                ]
+            }
+        },
+        "functionalLabels": {
+            "INTRO": "Introduction",
+            "SEQ": "Step-by-Step Order",
+            "CAUSE_EFFECT": "Cause and Effect",
+            "EXAMPLE_DETAIL": "Description & Details",
+            "CONCLUSION": "Conclusion"
+        }
+    },
+    "defaultBank": [
+        {
+            "id": "bank1",
+            "originalText": "Water flows over rocks and carries them away.",
+            "currentText": "Water flows over rocks and carries them away.",
+            "function": "EXAMPLE_DETAIL",
+            "section": "STARTERS",
+            "chunks": []
+        },
+        {
+            "id": "bank2",
+            "originalText": "Ice can split huge boulders apart over time.",
+            "currentText": "Ice can split huge boulders apart over time.",
+            "function": "CAUSE_EFFECT",
+            "section": "STARTERS",
+            "chunks": []
+        },
+        {
+            "id": "bank3",
+            "originalText": "First, the rain washes minerals out of the rocks.",
+            "currentText": "First, the rain washes minerals out of the rocks.",
+            "function": "SEQ",
+            "section": "STARTERS",
+            "chunks": []
+        },
+        {
+            "id": "bank4",
+            "originalText": "Strong winds grind mountains down into sand.",
+            "currentText": "Strong winds grind mountains down into sand.",
+            "function": "EXAMPLE_DETAIL",
+            "section": "STARTERS",
+            "chunks": []
+        },
+        {
+            "id": "bank5",
+            "originalText": "As a result, the landscape changes slowly each day.",
+            "currentText": "As a result, the landscape changes slowly each day.",
+            "function": "CAUSE_EFFECT",
+            "section": "STARTERS",
+            "chunks": []
+        },
+        {
+            "id": "bank6",
+            "originalText": "In conclusion, weathering and erosion reshape our world.",
+            "currentText": "In conclusion, weathering and erosion reshape our world.",
+            "function": "CONCLUSION",
+            "section": "STARTERS",
+            "chunks": []
+        }
+    ]
+}
